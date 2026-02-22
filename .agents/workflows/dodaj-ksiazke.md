@@ -13,5 +13,6 @@ Ten workflow (skill) pozwala asystentowi (AI) dodawać nową książkę do bazy 
    - Notatki / Recenzja
 2. Otwórz plik `books.json` upewniając się co do jego aktualnej zawartości (odczytaj go narzędziem do podglądu, np. `view_file` lub bezpośrednio przy dodawaniu, używając `replace_file_content` na tablicy).
 3. Wygeneruj nowy obiekt JSON, który wpisuje się w ten sam schemat co reszta pozycji, dodając mu unikalne `id` (jako nowy maksymalny numer).
-4. Zapisz nowe dane do `books.json`.
-5. Potwierdź użytkownikowi, że książka została dodana i pokaż jak wygląda w bazie danych JSON.
+4. Zapisz nowe dane do `books.json` oraz `books.js`.
+5. Użyj narzędzia do wykonywania komend w terminalu (`run_command`), aby zacommitować i wypchnąć zmiany na serwer (np. `git add . && git commit -m "Dodano książkę: [Tytuł]" && git push origin main`). Pamiętaj, że główny branch to `main`.
+6. Potwierdź użytkownikowi, że książka została dodana do bazy i zmiany zostały opublikowane na serwerze.
