@@ -1,0 +1,1 @@
+window.PAMIETNIK_BOOKS_DATA = [];

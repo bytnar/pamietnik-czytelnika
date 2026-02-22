@@ -9,54 +9,6 @@
     const STORAGE_KEY = 'pamietnik-czytelnika-books';
     const THEME_KEY = 'pamietnik-czytelnika-theme';
 
-    // ── Sample data ──
-    const SAMPLE_BOOKS = [
-        {
-            id: '1',
-            title: 'Lalka',
-            author: 'Bolesław Prus',
-            date: '2025-12-15',
-            genre: 'Powieść',
-            rating: 10,
-            pages: 780,
-            cover: '',
-            notes: 'Arcydzieło polskiego realizmu. Fascynujący obraz Warszawy i portret idealista Wokulskiego, który stara się pogodzić wielką miłość z pragmatyzmem.'
-        },
-        {
-            id: '2',
-            title: 'Solaris',
-            author: 'Stanisław Lem',
-            date: '2026-01-08',
-            genre: 'Sci-Fi',
-            rating: 10,
-            pages: 204,
-            cover: '',
-            notes: 'Niezwykła podróż w głąb ludzkiej świadomości. Lem stawia pytania o granice poznania i naturę kontaktu z obcą inteligencją. Lektura, do której warto wracać.'
-        },
-        {
-            id: '3',
-            title: 'Wiedźmin: Ostatnie życzenie',
-            author: 'Andrzej Sapkowski',
-            date: '2026-01-22',
-            genre: 'Fantasy',
-            rating: 8,
-            pages: 332,
-            cover: '',
-            notes: 'Zbiór opowiadań o Geralcie z Rivii. Sapkowski mistrzowsko przetwarza klasyczne baśnie w mroczne, dojrzałe historie. Świetna proza.'
-        },
-        {
-            id: '4',
-            title: 'Zdążyć przed Panem Bogiem',
-            author: 'Hanna Krall',
-            date: '2026-02-10',
-            genre: 'Reportaż',
-            rating: 8,
-            pages: 82,
-            cover: '',
-            notes: 'Wstrząsająca rozmowa z Markiem Edlemanem o powstaniu w getcie warszawskim. Krótka, ale niezwykle poruszająca lektura.'
-        }
-    ];
-
     // ── State ──
     let books = [];
     let editingId = null;
@@ -85,9 +37,9 @@
     const statPages = $('#stat-pages');
 
     // ── Init ──
-    function init() {
+    async function init() {
         loadTheme();
-        loadBooks();
+        await loadBooks();
         render();
         bindEvents();
     }
@@ -110,23 +62,31 @@
     }
 
     // ── Data ──
-    function loadBooks() {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-            try {
-                books = JSON.parse(raw);
-            } catch {
+    async function loadBooks() {
+        return new Promise((resolve) => {
+            const script = document.createElement('script');
+            // Cache-busting: dodajemy timestamp, aby za każdym razem przeglądarka pobierała aktualną wersję danych
+            script.src = 'books.js?t=' + Date.now();
+
+            script.onload = () => {
+                books = window.PAMIETNIK_BOOKS_DATA || [];
+                resolve();
+            };
+
+            script.onerror = () => {
+                console.error('Błąd wczytywania pliku books.js. Upewnij się, że plik istnieje.');
                 books = [];
-            }
-        }
-        if (books.length === 0) {
-            books = SAMPLE_BOOKS.map(b => ({ ...b }));
-            saveBooks();
-        }
+                resolve();
+            };
+
+            document.body.appendChild(script);
+        });
     }
 
     function saveBooks() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+        // W trybie z plikiem JSON, operacje zapisu z poziomu UI (przeglądarki) nie będą modyfikować pliku.
+        // Wyłączamy LocalStorage, aby jedynym "źródłem prawdy" był plik books.json modyfikowany w kodzie.
+        console.warn('Funkcja zapisu przez przeglądarkę testowo wyłączona. Wszystkie zmiany wprowadzamy przez chat do books.json.');
     }
 
     function genId() {
@@ -172,8 +132,8 @@
           ${book.date ? `<p class="book-card-date">${formatDate(book.date)}</p>` : ''}
         </div>
         <div class="book-card-actions">
-          <button class="btn-edit" title="Edytuj" data-action="edit" data-id="${book.id}">✏️</button>
-          <button class="btn-delete" title="Usuń" data-action="delete" data-id="${book.id}">🗑️</button>
+          <button class="btn-edit" title="Edytuj" data-action="edit" data-id="${book.id}" style="display: none;">✏️</button>
+          <button class="btn-delete" title="Usuń" data-action="delete" data-id="${book.id}" style="display: none;">🗑️</button>
         </div>
       </article>
     `).join('');
